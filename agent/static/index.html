@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Scheduler</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 14px;
+    background: #f5f5f4;
+    color: #1c1c1c;
+    min-height: 100vh;
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    background: #fff;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .logo { font-size: 15px; font-weight: 500; }
+  .header-sub { font-size: 12px; color: #888; }
+  .header-tools {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .lang-switch {
+    height: 30px;
+    min-width: 92px;
+    font-size: 12px;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 16px;
+    padding: 16px;
+    max-width: 1300px;
+    margin: 0 auto;
+  }
+
+  .panel {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 16px;
+  }
+
+  .field { margin-bottom: 18px; }
+  .field:last-child { margin-bottom: 0; }
+
+  label {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 7px;
+  }
+
+  .chip-row { display: flex; flex-wrap: wrap; gap: 5px; }
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #f5f5f4;
+    border: 1px solid #e5e5e5;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 12px;
+  }
+
+  .chip button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #aaa;
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+  }
+
+  .chip button:hover { color: #333; }
+  .inline-add { display: flex; gap: 6px; margin-top: 6px; }
+
+  input, select {
+    height: 32px;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    padding: 0 10px;
+    font-size: 13px;
+    color: #1c1c1c;
+    background: #fff;
+    outline: none;
+    width: 100%;
+  }
+
+  input:focus, select:focus { border-color: #aaa; }
+  .inline-add input { flex: 1; }
+
+  button.btn-add {
+    height: 32px;
+    padding: 0 12px;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    background: #fff;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    color: #555;
+  }
+
+  button.btn-add:hover { background: #f5f5f4; }
+
+  .links-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+
+  .link-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    background: #f9f9f8;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    padding: 5px 10px;
+  }
+
+  .link-row .t { color: #185fa5; font-weight: 500; }
+  .link-row .s { color: #3c3489; font-weight: 500; }
+  .link-row .g { color: #3b6d11; font-weight: 500; }
+  .link-row .h { color: #854f0b; font-weight: 500; }
+  .link-row .sep { color: #ccc; }
+
+  .link-row button {
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ccc;
+    font-size: 14px;
+  }
+
+  .link-row button:hover { color: #555; }
+  .link-form { display: grid; grid-template-columns: 1fr 1fr 90px 44px; gap: 5px; }
+  .link-form input[type=number] { padding: 0 6px; text-align: center; }
+  .links-total { font-size: 11px; color: #aaa; margin-top: 6px; }
+  .link-groups-picker { margin-top: 8px; }
+  .picker-label {
+    font-size: 10px;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 6px;
+  }
+  .group-picker-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .group-toggle {
+    border: 1px solid #d7d7d4;
+    background: #fff;
+    color: #555;
+    border-radius: 999px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: .15s ease;
+  }
+  .group-toggle:hover { background: #f5f5f4; }
+  .group-toggle.active {
+    background: #eaf3de;
+    border-color: #b7cf96;
+    color: #31590d;
+  }
+
+  .exc-list { display: flex; flex-direction: column; gap: 4px; margin-bottom: 6px; }
+
+  .exc-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+    color: #666;
+    background: #f9f9f8;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    padding: 5px 10px;
+  }
+
+  .exc-item button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #ccc;
+    font-size: 14px;
+  }
+
+  .exc-item button:hover { color: #555; }
+
+  .btn-generate {
+    width: 100%;
+    padding: 10px;
+    background: #1c1c1c;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+
+  .btn-generate:hover { background: #333; }
+  .btn-generate:disabled { background: #aaa; cursor: not-allowed; }
+  .error { font-size: 12px; color: #c00; margin-top: 8px; }
+
+  .result-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+
+  .result-title { font-size: 13px; font-weight: 500; }
+
+  .result-tools {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .btn-reasoning {
+    font-size: 11px;
+    color: #888;
+    background: none;
+    border: 1px solid #e5e5e5;
+    border-radius: 5px;
+    padding: 3px 9px;
+    cursor: pointer;
+  }
+
+  .btn-reasoning:hover { background: #f5f5f4; }
+
+  .empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    color: #bbb;
+    font-size: 13px;
+  }
+
+  .loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    flex-direction: column;
+    gap: 10px;
+    color: #888;
+    font-size: 13px;
+  }
+
+  .spinner {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #e5e5e5;
+    border-top-color: #555;
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .day-block { margin-bottom: 20px; }
+
+  .day-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 6px;
+  }
+
+  table { width: 100%; border-collapse: collapse; }
+
+  th {
+    text-align: left;
+    font-size: 11px;
+    font-weight: 400;
+    color: #aaa;
+    padding: 0 10px 6px 0;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  td {
+    padding: 7px 10px 7px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  .td-time { color: #aaa; font-size: 12px; white-space: nowrap; width: 80px; }
+
+  .pill {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .pill-t { background: #e6f1fb; color: #0c447c; }
+  .pill-g { background: #eaf3de; color: #3b6d11; }
+  .pill-r { background: #faeeda; color: #854f0b; }
+  .pill-s { background: #eeedfe; color: #3c3489; }
+
+  .reasoning-box {
+    margin-bottom: 16px;
+    background: #f9f9f8;
+    border: 1px solid #e5e5e5;
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+
+  .reasoning-box .r-title {
+    font-size: 11px;
+    font-weight: 500;
+    color: #888;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  .r-step {
+    font-size: 12px;
+    color: #555;
+    line-height: 1.7;
+    display: flex;
+    gap: 7px;
+  }
+
+  .r-step::before {
+    content: "✓";
+    color: #3b6d11;
+    flex-shrink: 0;
+  }
+
+  .warnings-box {
+    margin-bottom: 14px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #92400e;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 960px) {
+    .layout {
+      grid-template-columns: 1fr;
+    }
+
+    .result-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    .result-tools {
+      width: 100%;
+      flex-wrap: wrap;
+    }
+
+    .link-form {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">AI Scheduler</span>
+  <div class="header-tools">
+    <span class="header-sub" data-i18n="headerSub">Пн – Сб · 08:00 – 18:50</span>
+    <select id="lang-select" class="lang-switch" onchange="setLanguage(this.value)">
+      <option value="ru">Рус</option>
+      <option value="kk" selected>Қаз</option>
+    </select>
+  </div>
+</header>
+
+<div class="layout">
+  <div class="panel">
+    <div class="field">
+      <label data-i18n="teachersLabel">Преподаватели</label>
+      <div class="chip-row" id="teachers-chips"></div>
+      <div class="inline-add">
+        <input id="teacher-inp" data-i18n-placeholder="teacherPlaceholder" placeholder="Имя преподавателя" onkeydown="if(event.key==='Enter') addChip('teacher')">
+        <button class="btn-add" onclick="addChip('teacher')">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label data-i18n="groupsLabel">Группы</label>
+      <div class="chip-row" id="groups-chips"></div>
+      <div class="inline-add">
+        <input id="group-inp" data-i18n-placeholder="groupPlaceholder" placeholder="Название группы" onkeydown="if(event.key==='Enter') addChip('group')">
+        <button class="btn-add" onclick="addChip('group')">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label data-i18n="roomsLabel">Кабинеты</label>
+      <div class="chip-row" id="rooms-chips"></div>
+      <div class="inline-add">
+        <input id="room-inp" data-i18n-placeholder="roomPlaceholder" placeholder="Номер / название" onkeydown="if(event.key==='Enter') addChip('room')">
+        <button class="btn-add" onclick="addChip('room')">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label><span data-i18n="linksLabel">Связки</span> <span data-i18n="linksHint" style="font-weight:400;text-transform:none;letter-spacing:0;color:#bbb;font-size:10px">препод · предмет · группы · ч подряд на каждую группу</span></label>
+      <div class="links-list" id="links-list"></div>
+      <div class="link-form">
+        <select id="link-teacher"><option value="">Препод</option></select>
+        <input id="link-subject" data-i18n-placeholder="subjectPlaceholder" placeholder="Предмет" onkeydown="if(event.key==='Enter') addLinkBatch()">
+        <input id="link-hours" type="number" min="1" max="8" value="2">
+        <button class="btn-add" onclick="addLinkBatch()">+</button>
+      </div>
+      <div class="link-groups-picker">
+        <div class="picker-label" data-i18n="groupsForLink">Группы для этой связки</div>
+        <div class="group-picker-row" id="link-groups-picker"></div>
+      </div>
+      <div class="links-total" id="links-total"></div>
+    </div>
+
+    <div class="field">
+      <label data-i18n="exceptionsLabel">Исключения</label>
+      <div class="exc-list" id="exc-list"></div>
+      <div class="inline-add">
+        <input id="exc-inp" data-i18n-placeholder="exceptionPlaceholder" placeholder="напр. Алиев — суббота" onkeydown="if(event.key==='Enter') addException()">
+        <button class="btn-add" onclick="addException()">+</button>
+      </div>
+    </div>
+
+    <button class="btn-generate" id="gen-btn" onclick="generate()" data-i18n="generateBtn">Создать расписание</button>
+    <div class="error" id="error-msg"></div>
+  </div>
+
+  <div class="panel">
+    <div class="result-header">
+      <span class="result-title" id="result-title" data-i18n="resultTitle">Расписание</span>
+      <div class="result-tools">
+        <select id="filter-select" style="height:28px;font-size:12px;border:1px solid #e5e5e5;border-radius:6px;padding:0 8px;display:none" onchange="renderResult()">
+          <option value="">Все группы</option>
+        </select>
+        <button class="btn-reasoning" id="btn-reasoning" onclick="toggleReasoning()" style="display:none">Логика агента</button>
+      </div>
+    </div>
+    <div id="result-content">
+      <div class="empty" id="initial-empty" data-i18n="initialEmpty">Сгенерированное расписание появится здесь</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const state = { teachers: [], groups: [], rooms: [], links: [], exceptions: [], selectedLinkGroups: [] };
+let reasoningData = [];
+let showReasoning = false;
+let scheduleData = {};
+let currentLang = "kk";
+let isGenerating = false;
+
+const i18n = {
+  ru: {
+    headerSub: "Пн – Сб · 08:00 – 18:50",
+    teachersLabel: "Преподаватели",
+    teacherPlaceholder: "Имя преподавателя",
+    groupsLabel: "Группы",
+    groupPlaceholder: "Название группы",
+    roomsLabel: "Кабинеты",
+    roomPlaceholder: "Номер / название",
+    linksLabel: "Связки",
+    linksHint: "препод · предмет · группы · ч подряд на каждую группу",
+    subjectPlaceholder: "Предмет",
+    teacherShort: "Препод",
+    groupsForLink: "Группы для этой связки",
+    addGroupsFirst: "Сначала добавьте группы",
+    exceptionsLabel: "Исключения",
+    exceptionPlaceholder: "напр. Алиев — суббота",
+    generateBtn: "Создать расписание",
+    regenerateBtn: "Пересоздать расписание",
+    resultTitle: "Расписание",
+    allGroups: "Все группы",
+    reasoningBtn: "Логика агента",
+    scheduleBtn: "Расписание",
+    initialEmpty: "Сгенерированное расписание появится здесь",
+    noReasoning: "Логика агента пока недоступна",
+    emptySchedule: "Расписание пусто",
+    noLessonsForGroup: "По выбранной группе занятий нет",
+    fillRequired: "Заполните преподавателей, группы, кабинеты и хотя бы одну связку",
+    agentWorking: "Агент работает...",
+    buildingSchedule: "Составляем расписание...",
+    connectionError: "Ошибка соединения с сервером",
+    hoursSequential: "ч подряд",
+    linksTotal: (count, total) => `${count} связок · ${total} ч/нед`,
+    reasoningTitle: "Логика агента",
+    tableTime: "Время",
+    tableTeacher: "Преподаватель",
+    tableSubject: "Предмет",
+    tableGroup: "Группа",
+    tableRoom: "Кабинет",
+  },
+  kk: {
+    headerSub: "Дс – Сб · 08:00 – 18:50",
+    teachersLabel: "Мұғалімдер",
+    teacherPlaceholder: "Мұғалімнің аты",
+    groupsLabel: "Топтар",
+    groupPlaceholder: "Топ атауы",
+    roomsLabel: "Кабинеттер",
+    roomPlaceholder: "Нөмірі / атауы",
+    linksLabel: "Байланыстар",
+    linksHint: "мұғалім · пән · топтар · әр топқа қатар сағат",
+    subjectPlaceholder: "Пән",
+    teacherShort: "Мұғалім",
+    groupsForLink: "Осы байланысқа арналған топтар",
+    addGroupsFirst: "Алдымен топтарды қосыңыз",
+    exceptionsLabel: "Шектеулер",
+    exceptionPlaceholder: "мысалы, Әлиев — сенбі",
+    generateBtn: "Кесте құру",
+    regenerateBtn: "Кестені қайта құру",
+    resultTitle: "Кесте",
+    allGroups: "Барлық топтар",
+    reasoningBtn: "Агент логикасы",
+    scheduleBtn: "Кесте",
+    initialEmpty: "Құрылған кесте осы жерде көрсетіледі",
+    noReasoning: "Агент логикасы әзірге қолжетімсіз",
+    emptySchedule: "Кесте бос",
+    noLessonsForGroup: "Таңдалған топ үшін сабақтар жоқ",
+    fillRequired: "Мұғалімдерді, топтарды, кабинеттерді және кемінде бір байланысты толтырыңыз",
+    agentWorking: "Агент жұмыс істеп жатыр...",
+    buildingSchedule: "Кесте құрылып жатыр...",
+    connectionError: "Сервермен байланысу қатесі",
+    hoursSequential: "сағ қатар",
+    linksTotal: (count, total) => `${count} байланыс · ${total} сағ/апта`,
+    reasoningTitle: "Агент логикасы",
+    tableTime: "Уақыты",
+    tableTeacher: "Мұғалім",
+    tableSubject: "Пән",
+    tableGroup: "Топ",
+    tableRoom: "Кабинет",
+  }
+};
+
+function t(key, ...args) {
+  const value = i18n[currentLang][key];
+  return typeof value === "function" ? value(...args) : value;
+}
+
+function setLanguage(lang) {
+  currentLang = lang in i18n ? lang : "ru";
+  document.documentElement.lang = currentLang;
+  document.querySelectorAll("[data-i18n]").forEach(node => {
+    node.textContent = t(node.dataset.i18n);
+  });
+  document.querySelectorAll("[data-i18n-placeholder]").forEach(node => {
+    node.placeholder = t(node.dataset.i18nPlaceholder);
+  });
+  syncStaticUiText();
+  updateLinkSelects();
+  renderGroupPicker();
+  renderLinks();
+  renderResult();
+}
+
+function syncStaticUiText() {
+  const filterSelect = document.getElementById("filter-select");
+  const currentValue = filterSelect.value;
+  filterSelect.innerHTML = `<option value="">${escapeHtml(t("allGroups"))}</option>` + state.groups
+    .map(group => `<option value="${escapeHtml(group)}"${group === currentValue ? " selected" : ""}>${escapeHtml(group)}</option>`)
+    .join("");
+
+  const btn = document.getElementById("gen-btn");
+  btn.textContent = isGenerating ? t("agentWorking") : (scheduleData.schedule ? t("regenerateBtn") : t("generateBtn"));
+
+  document.getElementById("btn-reasoning").textContent = showReasoning ? t("scheduleBtn") : t("reasoningBtn");
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function addChip(type) {
+  const ids = { teacher: "teacher-inp", group: "group-inp", room: "room-inp" };
+  const keys = { teacher: "teachers", group: "groups", room: "rooms" };
+  const inp = document.getElementById(ids[type]);
+  const val = inp.value.trim();
+
+  if (!val || state[keys[type]].includes(val)) {
+    inp.value = "";
+    return;
+  }
+
+  state[keys[type]].push(val);
+  inp.value = "";
+  renderChips(type);
+
+  if (type === "teacher" || type === "group") {
+    updateLinkSelects();
+  }
+}
+
+function removeChip(type, val) {
+  const keys = { teacher: "teachers", group: "groups", room: "rooms" };
+  state[keys[type]] = state[keys[type]].filter(item => item !== val);
+
+  if (type === "teacher") {
+    state.links = state.links.filter(link => link.teacher !== val);
+    renderLinks();
+  }
+
+  if (type === "group") {
+    state.links = state.links.filter(link => link.group !== val);
+    renderLinks();
+  }
+
+  renderChips(type);
+
+  if (type === "teacher" || type === "group") {
+    updateLinkSelects();
+  }
+}
+
+function renderChips(type) {
+  const ids = { teacher: "teachers-chips", group: "groups-chips", room: "rooms-chips" };
+  const keys = { teacher: "teachers", group: "groups", room: "rooms" };
+
+  document.getElementById(ids[type]).innerHTML = state[keys[type]]
+    .map(value => `<span class="chip">${escapeHtml(value)}<button onclick="removeChip('${type}', '${String(value).replaceAll("'", "\\'")}')">×</button></span>`)
+    .join("");
+}
+
+function updateLinkSelects() {
+  const teacherSelect = document.getElementById("link-teacher");
+  const teacherValue = state.teachers.includes(teacherSelect.value) ? teacherSelect.value : "";
+
+  teacherSelect.innerHTML = `<option value="">${escapeHtml(t("teacherShort"))}</option>` + state.teachers
+    .map(teacher => `<option value="${escapeHtml(teacher)}"${teacher === teacherValue ? " selected" : ""}>${escapeHtml(teacher)}</option>`)
+    .join("");
+  state.selectedLinkGroups = state.selectedLinkGroups.filter(group => state.groups.includes(group));
+  renderGroupPicker();
+}
+
+function renderGroupPicker() {
+  const picker = document.getElementById("link-groups-picker");
+  if (!state.groups.length) {
+    picker.innerHTML = `<span style="font-size:12px;color:#aaa">${escapeHtml(t("addGroupsFirst"))}</span>`;
+    return;
+  }
+
+  picker.innerHTML = state.groups.map(group => {
+    const active = state.selectedLinkGroups.includes(group) ? " active" : "";
+    return `<button type="button" class="group-toggle${active}" onclick="toggleLinkGroup('${String(group).replaceAll("'", "\\'")}')">${escapeHtml(group)}</button>`;
+  }).join("");
+}
+
+function toggleLinkGroup(group) {
+  if (state.selectedLinkGroups.includes(group)) {
+    state.selectedLinkGroups = state.selectedLinkGroups.filter(item => item !== group);
+  } else {
+    state.selectedLinkGroups.push(group);
+  }
+  renderGroupPicker();
+}
+
+function addLinkBatch() {
+  const teacher = document.getElementById("link-teacher").value;
+  const subject = document.getElementById("link-subject").value.trim();
+  const hours = parseInt(document.getElementById("link-hours").value, 10) || 2;
+  const groups = state.selectedLinkGroups.slice();
+
+  if (!teacher || !subject || !groups.length) {
+    return;
+  }
+
+  groups.forEach(group => {
+    state.links.push({ teacher, subject, group, hours });
+  });
+
+  document.getElementById("link-subject").value = "";
+  document.getElementById("link-hours").value = "2";
+  state.selectedLinkGroups = [];
+  renderGroupPicker();
+  renderLinks();
+}
+
+function removeLink(index) {
+  state.links.splice(index, 1);
+  renderLinks();
+}
+
+function renderLinks() {
+  document.getElementById("links-list").innerHTML = state.links.map((link, index) =>
+    `<div class="link-row">
+      <span class="t">${escapeHtml(link.teacher)}</span><span class="sep">→</span>
+      <span class="s">${escapeHtml(link.subject)}</span><span class="sep">→</span>
+      <span class="g">${escapeHtml(link.group)}</span><span class="sep">→</span>
+      <span class="h">${link.hours} ${escapeHtml(t("hoursSequential"))}</span>
+      <button onclick="removeLink(${index})">×</button>
+    </div>`
+  ).join("");
+
+  const total = state.links.reduce((sum, link) => sum + link.hours, 0);
+  document.getElementById("links-total").textContent = state.links.length
+    ? t("linksTotal", state.links.length, total)
+    : "";
+}
+
+function addException() {
+  const input = document.getElementById("exc-inp");
+  const value = input.value.trim();
+  if (!value) return;
+
+  state.exceptions.push(value);
+  input.value = "";
+  renderExceptions();
+}
+
+function removeException(index) {
+  state.exceptions.splice(index, 1);
+  renderExceptions();
+}
+
+function renderExceptions() {
+  document.getElementById("exc-list").innerHTML = state.exceptions.map((exception, index) =>
+    `<div class="exc-item">${escapeHtml(exception)}<button onclick="removeException(${index})">×</button></div>`
+  ).join("");
+}
+
+function toggleReasoning() {
+  showReasoning = !showReasoning;
+  document.getElementById("btn-reasoning").textContent = showReasoning ? t("scheduleBtn") : t("reasoningBtn");
+  renderResult();
+}
+
+function renderResult() {
+  const area = document.getElementById("result-content");
+
+  if (showReasoning) {
+    area.innerHTML = reasoningData.length
+      ? `<div class="reasoning-box">
+          <div class="r-title">${escapeHtml(t("reasoningTitle"))}</div>
+          ${reasoningData.map(step => `<div class="r-step">${escapeHtml(step)}</div>`).join("")}
+        </div>`
+      : `<div class="empty">${escapeHtml(t("noReasoning"))}</div>`;
+    return;
+  }
+
+  const days = scheduleData.schedule || [];
+  if (!days.length) {
+    area.innerHTML = `<div class="empty">${escapeHtml(t("emptySchedule"))}</div>`;
+    return;
+  }
+
+  const filterGroup = document.getElementById("filter-select").value;
+  let html = "";
+
+  if (scheduleData.warnings && scheduleData.warnings.length) {
+    html += `<div class="warnings-box">${scheduleData.warnings.map(escapeHtml).join("<br>")}</div>`;
+  }
+
+  days.forEach(day => {
+    const slots = (day.slots || []).filter(slot => !filterGroup || slot.group === filterGroup);
+    if (!slots.length) {
+      return;
+    }
+
+    html += `<div class="day-block">
+      <div class="day-label">${escapeHtml(day.day)}</div>
+      <table>
+        <thead>
+          <tr>
+            <th>${escapeHtml(t("tableTime"))}</th>
+            <th>${escapeHtml(t("tableTeacher"))}</th>
+            <th>${escapeHtml(t("tableSubject"))}</th>
+            <th>${escapeHtml(t("tableGroup"))}</th>
+            <th>${escapeHtml(t("tableRoom"))}</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+    slots.forEach(slot => {
+      const time = slot.time_end ? `${slot.time_start} – ${slot.time_end}` : slot.time_start;
+      html += `<tr>
+        <td class="td-time">${escapeHtml(time)}</td>
+        <td><span class="pill pill-t">${escapeHtml(slot.teacher)}</span></td>
+        <td><span class="pill pill-s">${escapeHtml(slot.subject)}</span></td>
+        <td><span class="pill pill-g">${escapeHtml(slot.group)}</span></td>
+        <td><span class="pill pill-r">${escapeHtml(slot.room)}</span></td>
+      </tr>`;
+    });
+
+    html += "</tbody></table></div>";
+  });
+
+  area.innerHTML = html || `<div class="empty">${escapeHtml(t("noLessonsForGroup"))}</div>`;
+}
+
+async function generate() {
+  const { teachers, groups, rooms, links, exceptions } = state;
+  const err = document.getElementById("error-msg");
+
+  if (!teachers.length || !groups.length || !rooms.length || !links.length) {
+    err.textContent = t("fillRequired");
+    return;
+  }
+
+  err.textContent = "";
+
+  const btn = document.getElementById("gen-btn");
+  const filterSelect = document.getElementById("filter-select");
+  const reasoningBtn = document.getElementById("btn-reasoning");
+
+  isGenerating = true;
+  btn.disabled = true;
+  btn.textContent = t("agentWorking");
+  showReasoning = false;
+  reasoningBtn.textContent = t("reasoningBtn");
+  reasoningBtn.style.display = "none";
+  filterSelect.value = "";
+  document.getElementById("result-content").innerHTML = `<div class="loading"><div class="spinner"></div>${escapeHtml(t("buildingSchedule"))}</div>`;
+
+  try {
+    const res = await fetch("/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ teachers, groups, rooms, links, exceptions }),
+    });
+
+    const data = await res.json();
+    scheduleData = data || {};
+    reasoningData = data.reasoning || [];
+
+    syncStaticUiText();
+    filterSelect.style.display = "";
+
+    if (reasoningData.length) {
+      reasoningBtn.style.display = "";
+    }
+
+    renderResult();
+  } catch (error) {
+    document.getElementById("result-content").innerHTML = `<div class="empty" style="color:#c00">${escapeHtml(t("connectionError"))}</div>`;
+  } finally {
+    isGenerating = false;
+    btn.disabled = false;
+    btn.textContent = t("regenerateBtn");
+  }
+}
+
+renderGroupPicker();
+setLanguage("kk");
+</script>
+</body>
+</html>
