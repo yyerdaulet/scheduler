@@ -3,7 +3,7 @@ package com.example.demo.jira.authentication.services;
 import com.example.demo.jira.authentication.details.JwtCore;
 import com.example.demo.jira.integrations.EmailService;
 import com.example.demo.jira.log.LogExecutionTime;
-import com.example.demo.jira.items.profile.repo.JpaProfileRepository;
+import com.example.demo.jira.items.profile.infrastucture.persistence.JpaProfileRepository;
 import com.example.demo.jira.authentication.Dto.TokenDto;
 import com.example.demo.jira.authentication.Dto.UserCreateRequest;
 import com.example.demo.jira.authentication.Dto.UserLoginRequest;

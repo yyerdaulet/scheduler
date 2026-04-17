@@ -2,9 +2,9 @@ package com.example.demo.jira.integrations.ProfileImage.service;
 
 import com.example.demo.jira.integrations.fileStorage.FileStorageService;
 import com.example.demo.jira.integrations.fileStorage.ProfileFileResponse;
-import com.example.demo.jira.items.profile.mapper.ProfileMapper;
-import com.example.demo.jira.items.profile.model.ProfileEntity;
-import com.example.demo.jira.items.profile.repo.JpaProfileRepository;
+import com.example.demo.jira.items.profile.infrastucture.persistence.ProfileMapper;
+import com.example.demo.jira.items.profile.infrastucture.persistence.ProfileEntity;
+import com.example.demo.jira.items.profile.infrastucture.persistence.JpaProfileRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;

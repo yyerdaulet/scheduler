@@ -1,8 +1,7 @@
 package com.example.demo.jira.items.profile.useCases;
 
-import com.example.demo.jira.items.group.domain.model.Group;
-import com.example.demo.jira.items.profile.domain.Profile;
-import com.example.demo.jira.items.profile.domain.ProfileRepository;
+import com.example.demo.jira.items.profile.domain.model.Profile;
+import com.example.demo.jira.items.profile.domain.repository.ProfileRepository;
 
 import java.util.List;
 

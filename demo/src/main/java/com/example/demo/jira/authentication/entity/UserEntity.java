@@ -1,7 +1,7 @@
 package com.example.demo.jira.authentication.entity;
 
 import com.example.demo.jira.authentication.enums.UserRole;
-import com.example.demo.jira.items.profile.model.ProfileEntity;
+import com.example.demo.jira.items.profile.infrastucture.persistence.ProfileEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

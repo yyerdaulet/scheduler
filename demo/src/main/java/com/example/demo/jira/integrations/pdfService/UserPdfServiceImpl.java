@@ -1,7 +1,7 @@
 package com.example.demo.jira.integrations.pdfService;
 
-import com.example.demo.jira.items.profile.model.ProfileEntity;
-import com.example.demo.jira.items.profile.repo.JpaProfileRepository;
+import com.example.demo.jira.items.profile.infrastucture.persistence.ProfileEntity;
+import com.example.demo.jira.items.profile.infrastucture.persistence.JpaProfileRepository;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
