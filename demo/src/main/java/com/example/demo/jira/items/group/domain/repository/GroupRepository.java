@@ -10,4 +10,5 @@ public interface GroupRepository {
     Optional<Group> findById(Long id);
     Group save(Group group);
     void delete(Long id);
+    Boolean existById(Long groupId);
 }

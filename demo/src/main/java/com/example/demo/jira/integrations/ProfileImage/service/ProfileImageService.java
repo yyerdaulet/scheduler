@@ -34,7 +34,7 @@ public class ProfileImageService {
 
         repository.save(profile);
 
-        return mapper.toProfileFileResponse(id,fileName);
+        return null;
     }
 
     public Resource getImage(Long profileId) throws MalformedURLException {

@@ -1,6 +1,8 @@
 package com.example.demo.jira.items.subject.presentation.controller;
 
 import com.example.demo.jira.items.subject.domain.model.Subject;
+import com.example.demo.jira.items.subject.dto.SubjectResponse;
+import com.example.demo.jira.items.subject.dto.SubjectRequest;
 import com.example.demo.jira.items.subject.useCase.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,8 +34,8 @@ public class SubjectController {
     }
 
     @PostMapping("/subjects")
-    public ResponseEntity<Subject> createSubject(
-            @RequestBody Subject request
+    public ResponseEntity<SubjectResponse> createSubject(
+            @RequestBody SubjectRequest request
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(createSubject.execute(request));
     }

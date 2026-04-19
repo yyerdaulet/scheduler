@@ -3,6 +3,7 @@ package com.example.demo.jira.items.subject.domain.repository;
 import com.example.demo.jira.items.subject.domain.model.Subject;
 import com.example.demo.jira.items.subject.infrastructure.persistence.JpaSubjectRepository;
 import com.example.demo.jira.items.subject.infrastructure.persistence.SubjectMapper;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class SubjectRepositoryImpl implements SubjectRepository{
     private JpaSubjectRepository jpa;
     private SubjectMapper mapper;

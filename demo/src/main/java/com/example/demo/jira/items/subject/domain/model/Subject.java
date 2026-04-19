@@ -5,19 +5,26 @@ import lombok.Getter;
 
 @Getter
 public class Subject {
-    private Long id;
-    private String name;
-    private Long credits;
-    private Long hours;
-    private ActivityType type;
+    private final Long id;
+    private final String name;
+    private final Long credits;
 
-    public Subject(Long id, String name, Long credits, Long hours, ActivityType type) {
-    }
+    public Subject(Long id, String name, Long credits) {
+        validateCredits(credits);
 
-    public void update(String name,Long credits,Long hours,ActivityType type) {
+        this.id = id;
         this.name = name;
         this.credits = credits;
-        this.hours = hours;
-        this.type = type;
     }
+
+    public void validateCredits(Long credits){
+        if(credits > 8){
+            throw new IllegalArgumentException("Too many credits");
+        }
+    }
+
+
+
+
+
 }

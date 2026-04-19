@@ -1,6 +1,8 @@
 package com.example.demo.jira.items.group.presentation.controller;
 
 import com.example.demo.jira.items.group.domain.model.Group;
+import com.example.demo.jira.items.group.dto.GroupRequest;
+import com.example.demo.jira.items.group.dto.GroupResponse;
 import com.example.demo.jira.items.group.usecase.create.CreateGroup;
 import com.example.demo.jira.items.group.usecase.delete.DeleteGroup;
 import com.example.demo.jira.items.group.usecase.get.GetGroup;
@@ -33,8 +35,8 @@ public class GroupController {
     }
 
     @PostMapping("/groups")
-    public ResponseEntity<Group> createGroup(
-            @RequestBody Group request
+    public ResponseEntity<GroupResponse> createGroup(
+            @RequestBody GroupRequest request
             ){
         return ResponseEntity.status(HttpStatus.OK).body(createGroup.execute(request));
     }

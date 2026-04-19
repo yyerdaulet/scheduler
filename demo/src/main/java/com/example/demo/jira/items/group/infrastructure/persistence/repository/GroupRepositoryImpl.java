@@ -1,8 +1,8 @@
-package com.example.demo.jira.items.group.domain.repository;
+package com.example.demo.jira.items.group.infrastructure.persistence.repository;
 
 import com.example.demo.jira.items.group.domain.model.Group;
+import com.example.demo.jira.items.group.domain.repository.GroupRepository;
 import com.example.demo.jira.items.group.infrastructure.persistence.GroupMapper;
-import com.example.demo.jira.items.group.infrastructure.persistence.JpaGroupRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -37,6 +37,11 @@ public class GroupRepositoryImpl implements GroupRepository {
     @Override
     public void delete(Long id){
         jpa.deleteById(id);
+    }
+
+    @Override
+    public Boolean existById(Long groupId) {
+       return jpa.existsById(groupId);
     }
 
 }

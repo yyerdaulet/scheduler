@@ -1,6 +1,7 @@
 package com.example.demo.jira.items.group.config;
 
 import com.example.demo.jira.items.group.domain.repository.GroupRepository;
+import com.example.demo.jira.items.group.infrastructure.persistence.GroupMapper;
 import com.example.demo.jira.items.group.usecase.create.CreateGroup;
 import com.example.demo.jira.items.group.usecase.delete.DeleteGroup;
 import com.example.demo.jira.items.group.usecase.get.GetGroup;
@@ -17,8 +18,8 @@ public class GroupConfig {
     }
 
     @Bean
-    public CreateGroup createGroup(GroupRepository repository){
-        return new CreateGroup(repository);
+    public CreateGroup createGroup(GroupRepository repository, GroupMapper mapper){
+        return new CreateGroup(repository,mapper);
     }
 
     @Bean

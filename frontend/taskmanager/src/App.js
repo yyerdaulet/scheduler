@@ -443,7 +443,6 @@ function App() {
           <Route path="/login" element={<Login setIsAuth={setIsAuth} />} />
           <Route path="/profiles/:profile_id" element={<Profile />} />
           <Route path="/admin" element={<AdminPanel />} />
-          <Route path="/admin/profiles" element={<StudentsPage />} />
           <Route path="/profiles" element={<CreateProfile />} />
           <Route path="/register/verify" element={<VerifyEmail />} />
           <Route path="/main" element={<MainPage />} />

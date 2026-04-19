@@ -25,10 +25,4 @@ public class SubjectEntity {
 
     @Column(name="credits")
     private Long credits;
-
-    @Column(name="hours")
-    private Long hours;
-
-    @Column(name="type")
-    private ActivityType type;
 }

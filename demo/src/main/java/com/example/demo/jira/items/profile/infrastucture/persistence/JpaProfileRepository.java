@@ -9,8 +9,4 @@ import java.util.*;
 
 @Repository
 public interface JpaProfileRepository extends JpaRepository<ProfileEntity,Long>, JpaSpecificationExecutor<ProfileEntity> {
-
-    List<ProfileEntity> findByLabId(Long labId);
-
-    List<ProfileEntity> findAllByOrcidIn(Collection<String> listOrcid);
 }

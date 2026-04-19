@@ -16,12 +16,6 @@ public class UpdateSubject {
                 .orElseThrow(
                         () -> new EntityNotFoundException("Subject Not Found : " + subjectId)
                 );
-        subject.update(
-                request.getName(),
-                request.getCredits(),
-                request.getHours(),
-                request.getType()
-        );
 
         return repository.save(subject);
     }
