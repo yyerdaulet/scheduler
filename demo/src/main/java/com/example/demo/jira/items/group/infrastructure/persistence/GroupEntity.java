@@ -1,11 +1,14 @@
 package com.example.demo.jira.items.group.infrastructure.persistence;
 
+import com.example.demo.jira.items.group.domain.model.Subgroup;
 import com.example.demo.jira.items.group.enums.Direction;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.List;
 
 @Entity
 @Table(name="groups")
@@ -26,4 +29,11 @@ public class GroupEntity {
 
     @Column(name="direction")
     private Direction direction;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name="subgroups",
+            joinColumns = @JoinColumn(name = "group_id")
+    )
+    private List<Subgroup> subgroups;
 }

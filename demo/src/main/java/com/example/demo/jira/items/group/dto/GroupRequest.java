@@ -5,6 +5,7 @@ import com.example.demo.jira.items.group.enums.Direction;
 public record GroupRequest(
         String name,
         Long enrolledYear,
-        Direction direction
+        Direction direction,
+        Long size
 ) {
 }

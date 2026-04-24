@@ -23,7 +23,7 @@ public class GroupController {
 
 
     @GetMapping("/groups")
-    public ResponseEntity<List<Group>> getAllGroups(){
+    public ResponseEntity<List<GroupResponse>> getAllGroups(){
         return ResponseEntity.status(HttpStatus.OK).body(getGroups.execute());
     }
 
@@ -38,6 +38,7 @@ public class GroupController {
     public ResponseEntity<GroupResponse> createGroup(
             @RequestBody GroupRequest request
             ){
+        System.out.println(request.size());
         return ResponseEntity.status(HttpStatus.OK).body(createGroup.execute(request));
     }
 

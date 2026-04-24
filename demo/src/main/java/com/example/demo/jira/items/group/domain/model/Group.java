@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -13,8 +15,9 @@ public class Group {
     private String name;
     private Long enrolledYear;
     private Direction direction;
+    private List<Subgroup> subgroups;
 
-    public Group(Long id,String name,Long enrolledYear,Direction direction){
+    public Group(Long id,String name,Long enrolledYear,Direction direction,List<Subgroup> subgroups){
         validateEnrolledYear(enrolledYear);
         validateDirection(enrolledYear,direction);
 
@@ -22,6 +25,11 @@ public class Group {
         this.name = name;
         this.enrolledYear = enrolledYear;
         this.direction = direction;
+        this.subgroups = subgroups;
+    }
+
+    public void addSubgroups(List<Subgroup> subgroup){
+        this.subgroups.addAll(subgroup);
     }
 
     private void validateEnrolledYear(Long enrolled_year) {

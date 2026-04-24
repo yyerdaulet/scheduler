@@ -6,7 +6,8 @@ import CreateProfile from "./pages/CreateProfile";
 import { useState, useEffect, useRef } from "react";
 import AdminPanel from "./pages/Admin";
 import VerifyEmail from "./pages/VerifyEmail";
-import MainPage from "./pages/MainPage";
+import CreateGroup from "./pages/Groups";
+import CreateSubject from "./pages/Subjects";
 import api from "./api";
 
 /* ─── Font + styles ──────────────────────────────────────────────────────── */
@@ -445,7 +446,8 @@ function App() {
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/profiles" element={<CreateProfile />} />
           <Route path="/register/verify" element={<VerifyEmail />} />
-          <Route path="/main" element={<MainPage />} />
+          <Route path="/createGroup" element={<CreateGroup />} />
+          <Route path="/createSubject" element={<CreateSubject />} />
         </Routes>
       </div>
 

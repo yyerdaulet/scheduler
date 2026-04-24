@@ -2,6 +2,7 @@ package com.example.demo.jira.items.group.infrastructure.persistence.repository;
 
 import com.example.demo.jira.items.group.domain.model.Group;
 import com.example.demo.jira.items.group.domain.repository.GroupRepository;
+import com.example.demo.jira.items.group.infrastructure.persistence.GroupEntity;
 import com.example.demo.jira.items.group.infrastructure.persistence.GroupMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -35,6 +36,16 @@ public class GroupRepositoryImpl implements GroupRepository {
     }
 
     @Override
+    public List<Group> saveAll(List<Group> groups) {
+        List<GroupEntity> entitiesToSave = groups.stream().map(mapper::toEntity).toList();
+        List<GroupEntity> savedEntities = jpa.saveAll(entitiesToSave);
+
+        return savedEntities.stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+    @Override
     public void delete(Long id){
         jpa.deleteById(id);
     }
@@ -42,6 +53,13 @@ public class GroupRepositoryImpl implements GroupRepository {
     @Override
     public Boolean existById(Long groupId) {
        return jpa.existsById(groupId);
+    }
+
+    @Override
+    public List<Group> findAllById(List<Long> groupsId) {
+        return jpa.findAllById(groupsId).stream().map(
+                mapper::toDomain
+        ).toList();
     }
 
 }

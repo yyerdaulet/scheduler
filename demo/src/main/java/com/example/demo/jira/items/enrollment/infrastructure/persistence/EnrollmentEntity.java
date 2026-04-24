@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 
 @Entity
 @Table
@@ -22,5 +24,5 @@ public class EnrollmentEntity {
     private Long subjectId;
 
     @Column(name="group_id")
-    private Long groupId;
+    private List<Long> groupsId;
 }

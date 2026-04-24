@@ -17,14 +17,18 @@ public class CreateSubject {
          Subject subject = new Subject(
                 null,
                     request.name(),
-                 request.credits()
+                 request.credits(),
+                 request.type(),
+                 request.hours()
          );
          Subject savedSubject = repository.save(subject);
 
          return new SubjectResponse(
                  savedSubject.getId(),
                  savedSubject.getName(),
-                 savedSubject.getCredits()
+                 savedSubject.getCredits(),
+                 savedSubject.getHours(),
+                 savedSubject.getType()
          );
     }
 }

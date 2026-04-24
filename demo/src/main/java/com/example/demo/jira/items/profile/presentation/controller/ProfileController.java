@@ -1,6 +1,8 @@
 package com.example.demo.jira.items.profile.presentation.controller;
 
 import com.example.demo.jira.items.profile.domain.model.Profile;
+import com.example.demo.jira.items.profile.dto.ProfileRequest;
+import com.example.demo.jira.items.profile.dto.ProfileResponse;
 import com.example.demo.jira.items.profile.useCases.*;
 import com.example.demo.jira.log.LogExecutionTime;
 import jakarta.validation.Valid;
@@ -37,7 +39,7 @@ public class ProfileController {
         return ResponseEntity.status(HttpStatus.OK).body(getProfile.execute(profileId));
     }
 
-    @PostMapping("/profiles/{profileId}")
+    @PutMapping("/profiles/{profileId}")
     @LogExecutionTime()
     public ResponseEntity<Profile> updateProfile(
             @RequestBody @Valid Profile request,
@@ -49,8 +51,8 @@ public class ProfileController {
 
     @PostMapping("/profiles")
     @LogExecutionTime()
-    public ResponseEntity<Profile> createProfile(
-            @RequestBody @Valid Profile request
+    public ResponseEntity<ProfileResponse> createProfile(
+            @RequestBody @Valid ProfileRequest request
             ){
         return ResponseEntity.status(HttpStatus.CREATED).body(createProfile.execute(request));
     }

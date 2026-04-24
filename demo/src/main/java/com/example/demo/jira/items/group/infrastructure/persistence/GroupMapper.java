@@ -12,7 +12,8 @@ public class GroupMapper {
                 savedGroup.getId(),
                 savedGroup.getName(),
                 savedGroup.getEnrolled_year(),
-                savedGroup.getDirection()
+                savedGroup.getDirection(),
+                savedGroup.getSubgroups()
         );
     }
 
@@ -21,7 +22,8 @@ public class GroupMapper {
                 null,
                 request.getName(),
                 request.getEnrolledYear(),
-                request.getDirection()
+                request.getDirection(),
+                request.getSubgroups()
         );
     }
 
@@ -30,7 +32,8 @@ public class GroupMapper {
             group.getId(),
                 group.getName(),
                 group.getEnrolledYear(),
-                group.getDirection()
+                group.getDirection(),
+                group.getSubgroups()
         );
     }
 }

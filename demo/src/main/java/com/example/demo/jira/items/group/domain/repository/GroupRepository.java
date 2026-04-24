@@ -9,6 +9,8 @@ public interface GroupRepository {
     List<Group> findAll();
     Optional<Group> findById(Long id);
     Group save(Group group);
+    List<Group> saveAll(List<Group> groups);
     void delete(Long id);
     Boolean existById(Long groupId);
+    List<Group> findAllById(List<Long> groupsId);
 }

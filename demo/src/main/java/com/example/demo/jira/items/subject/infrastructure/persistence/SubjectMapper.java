@@ -15,7 +15,9 @@ public class SubjectMapper {
         return new SubjectEntity(
                 null,
                 request.getName(),
-                request.getCredits()
+                request.getCredits(),
+                request.getType(),
+                request.getHours()
         );
     }
 
@@ -23,7 +25,9 @@ public class SubjectMapper {
         return new Subject(
                 savedSubject.getId(),
                 savedSubject.getName(),
-                savedSubject.getCredits()
+                savedSubject.getCredits(),
+                savedSubject.getType(),
+                savedSubject.getHours()
         );
     }
 }
