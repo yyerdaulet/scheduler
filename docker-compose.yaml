@@ -1,6 +1,15 @@
 services:
+  frontend:
+    image: simple_scheduler_frontend
+    build:
+      context: frontend/taskmanager
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
   backend:
-    image: to_do_backend
+    image: simple_scheduler_backend
     build:
       context: ./demo
     ports:
@@ -20,11 +29,12 @@ services:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_DB: ${DB_NAME}
     healthcheck:
-      test: ["CMD-SHELL","pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
     volumes:
       - db-data:/var/lib/postgresql/data
+
 volumes:
   db-data:

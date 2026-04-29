@@ -15,8 +15,14 @@ The backend is written in Java with Spring Boot and follows Clean Architecture p
 
 ## Features
 
+## Features
+
 - JWT authentication with email verification
-- CRUD for profiles, subjects, groups, and lessons
+- CRUD operations
+- Three lesson types, each with its own scheduling logic:
+    - **Lecture** — assigned to multiple groups at once, held in a single classroom
+    - **Seminar** — assigned per group individually
+    - **Laboratory** — assigned per group and split into subgroups, each requiring a separate classroom slot
 - Classroom booking with visual timetable grid
 - Student enrollment into groups
 - Assignment management (active / non-active)
@@ -93,6 +99,19 @@ docker-compose up --build
 
 ---
 
+## Architecture
+
+The backend follows Clean Architecture. Dependencies flow inward — infrastructure depends on domain, never the other way around.
+
+```
+Controller → Service → Domain
+                         ↑
+                Repository Interface
+                         ↑
+                Infrastructure (JPA)
+```
+
+This keeps business logic independent of frameworks, making it straightforward to test and extend.
 ## API Endpoints
 
 Base URL: `http://localhost:8080`
@@ -168,41 +187,6 @@ Authorization: Bearer <token>
 
 ---
 
-## Project Structure
-
-```
-simple-scheduler/
-├── backend/
-│   └── src/main/java/
-│       ├── controller/       # HTTP layer
-│       ├── service/          # Business logic
-│       ├── domain/           # Entities, repository interfaces
-│       ├── infrastructure/   # JPA implementations
-│       └── config/           # Security, JWT
-├── frontend/
-│   └── src/
-│       ├── pages/            # Route components
-│       ├── components/       # Reusable UI
-│       └── api/              # API client
-├── docker-compose.yml
-└── .env.example
-```
-
----
-
-## Architecture
-
-The backend follows Clean Architecture. Dependencies flow inward — infrastructure depends on domain, never the other way around.
-
-```
-Controller → Service → Domain
-                          ↑
-               Repository Interface
-                          ↑
-               Infrastructure (JPA)
-```
-
-This keeps business logic independent of frameworks, making it straightforward to test and extend.
 
 
 
