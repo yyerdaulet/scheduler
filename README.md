@@ -2,9 +2,6 @@
 
 Academic class scheduling web application.
 
-![Build](https://img.shields.io/badge/build-passing-brightgreen)
-![License](https://img.shields.io/badge/license-MIT-lightgrey)
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
 
 ---
 
@@ -20,23 +17,48 @@ The backend is written in Java with Spring Boot and follows Clean Architecture p
 
 - JWT authentication with email verification
 - CRUD for profiles, subjects, groups, and lessons
-- Classroom booking
+- Classroom booking with visual timetable grid
 - Student enrollment into groups
 - Assignment management (active / non-active)
 - Dockerized — runs with a single command
 
 ---
 
+## Screenshots
+
+**Profiles**
+![Profiles](./screenshot-profiles.png)
+
+**Groups**
+![Groups](./screenshot-groups.png)
+
+**Subjects**
+![Subjects](./screenshot-subjects.png)
+
+**Enrollments**
+![Enrollments](./screenshot-enrollments.png)
+
+**Lessons**
+![Lessons](./screenshot-lessons.png)
+
+**Assignments**
+![Assignments](./screenshot-assignments.png)
+
+**Schedule / Classroom Grid**
+![Schedule](./screenshot-schedule.png)
+
+---
+
 ## Tech Stack
 
-| Layer          | Technology              |
-|----------------|-------------------------|
-| Frontend       | React                   |
-| Backend        | Java, Spring Boot       |
-| Auth           | JWT                     |
-| ORM            | JPA / Hibernate         |
-| Database       | PostgreSQL              |
-| Containerization | Docker, Docker Compose |
+| Layer            | Technology              |
+|------------------|-------------------------|
+| Frontend         | React                   |
+| Backend          | Java, Spring Boot       |
+| Auth             | JWT                     |
+| ORM              | JPA / Hibernate         |
+| Database         | PostgreSQL              |
+| Containerization | Docker, Docker Compose  |
 
 ---
 
@@ -45,29 +67,29 @@ The backend is written in Java with Spring Boot and follows Clean Architecture p
 **Requirements:** Docker and Docker Compose
 
 ```bash
-git clone https://github.com/your-username/acad-scheduler.git
-cd acad-scheduler
+git clone https://github.com/your-username/simple-scheduler.git
+cd simple-scheduler
 cp .env.example .env
 ```
 
 Edit `.env`:
 
 ```env
-DB_NAME=acad_scheduler
+DB_NAME=simple_scheduler
 DB_USER=postgres
 DB_PASSWORD=secret
 JWT_SECRET=your_secret_key
-NEXT_PUBLIC_API_URL=http://localhost:8080
+REACT_APP_API_URL=http://localhost:8080
 ```
 
 ```bash
 docker-compose up --build
 ```
 
-| Service  | URL                    |
-|----------|------------------------|
-| Frontend | http://localhost:3000  |
-| Backend  | http://localhost:8080  |
+| Service  | URL                   |
+|----------|-----------------------|
+| Frontend | http://localhost:3000 |
+| Backend  | http://localhost:8080 |
 
 ---
 
@@ -81,30 +103,30 @@ Authorization: Bearer <token>
 ```
 
 ### Auth
-| Method | Endpoint                  | Description          |
-|--------|---------------------------|----------------------|
-| POST   | `/register`               | Register             |
-| GET    | `/register/verify`        | Verify email         |
-| POST   | `/login`                  | Login, returns JWT   |
-| GET    | `/login/{user_id}/check`  | Check session status |
+| Method | Endpoint                 | Description        |
+|--------|--------------------------|--------------------|
+| POST   | `/register`              | Register           |
+| GET    | `/register/verify`       | Verify email       |
+| POST   | `/login`                 | Login, returns JWT |
+| GET    | `/login/{user_id}/check` | Check session      |
 
 ### Profiles
-| Method | Endpoint                  | Description     |
-|--------|---------------------------|-----------------|
-| GET    | `/profiles`               | List all        |
-| GET    | `/profiles/{id}`          | Get by ID       |
-| POST   | `/profiles`               | Create          |
-| PUT    | `/profiles/{id}`          | Update          |
-| DELETE | `/profiles/{id}`          | Delete          |
+| Method | Endpoint          | Description |
+|--------|-------------------|-------------|
+| GET    | `/profiles`       | List all    |
+| GET    | `/profiles/{id}`  | Get by ID   |
+| POST   | `/profiles`       | Create      |
+| PUT    | `/profiles/{id}`  | Update      |
+| DELETE | `/profiles/{id}`  | Delete      |
 
 ### Subjects
-| Method | Endpoint                  | Description     |
-|--------|---------------------------|-----------------|
-| GET    | `/subjects`               | List all        |
-| GET    | `/subjects/{id}`          | Get by ID       |
-| POST   | `/subjects`               | Create          |
-| PUT    | `/subjects/{id}`          | Update          |
-| DELETE | `/subjects/{id}`          | Delete          |
+| Method | Endpoint          | Description |
+|--------|-------------------|-------------|
+| GET    | `/subjects`       | List all    |
+| GET    | `/subjects/{id}`  | Get by ID   |
+| POST   | `/subjects`       | Create      |
+| PUT    | `/subjects/{id}`  | Update      |
+| DELETE | `/subjects/{id}`  | Delete      |
 
 ### Lessons
 | Method | Endpoint    | Description |
@@ -113,42 +135,60 @@ Authorization: Bearer <token>
 | POST   | `/lessons`  | Create      |
 
 ### Groups
-| Method | Endpoint          | Description |
-|--------|-------------------|-------------|
-| GET    | `/groups`         | List all    |
-| GET    | `/groups/{id}`    | Get by ID   |
-| POST   | `/groups`         | Create      |
-| PUT    | `/groups/{id}`    | Update      |
-| DELETE | `/groups/{id}`    | Delete      |
+| Method | Endpoint        | Description |
+|--------|-----------------|-------------|
+| GET    | `/groups`       | List all    |
+| GET    | `/groups/{id}`  | Get by ID   |
+| POST   | `/groups`       | Create      |
+| PUT    | `/groups/{id}`  | Update      |
+| DELETE | `/groups/{id}`  | Delete      |
 
 ### Enrollments
-| Method | Endpoint               | Description |
-|--------|------------------------|-------------|
-| GET    | `/enrollments`         | List all    |
-| GET    | `/enrollments/{id}`    | Get by ID   |
-| POST   | `/enrollments`         | Enroll      |
+| Method | Endpoint              | Description |
+|--------|-----------------------|-------------|
+| GET    | `/enrollments`        | List all    |
+| GET    | `/enrollments/{id}`   | Get by ID   |
+| POST   | `/enrollments`        | Enroll      |
 
 ### Classrooms
-| Method | Endpoint                  | Description    |
-|--------|---------------------------|----------------|
-| GET    | `/classrooms`             | List all       |
-| POST   | `/classrooms`             | Create         |
-| POST   | `/classrooms/book`        | Book a room    |
-| PUT    | `/classrooms/{id}`        | Update         |
-| DELETE | `/classrooms/{id}`        | Delete         |
+| Method | Endpoint               | Description |
+|--------|------------------------|-------------|
+| GET    | `/classrooms`          | List all    |
+| POST   | `/classrooms`          | Create      |
+| POST   | `/classrooms/book`     | Book a room |
+| PUT    | `/classrooms/{id}`     | Update      |
+| DELETE | `/classrooms/{id}`     | Delete      |
 
 ### Assignments
-| Method | Endpoint                    | Description          |
-|--------|-----------------------------|----------------------|
-| GET    | `/assignments`              | List active          |
-| GET    | `/assignments/nonactive`    | List non-active      |
-| POST   | `/assignments`              | Create               |
+| Method | Endpoint                  | Description     |
+|--------|---------------------------|-----------------|
+| GET    | `/assignments`            | List active     |
+| GET    | `/assignments/nonactive`  | List non-active |
+| POST   | `/assignments`            | Create          |
 
 ---
 
+## Project Structure
 
+```
+simple-scheduler/
+├── backend/
+│   └── src/main/java/
+│       ├── controller/       # HTTP layer
+│       ├── service/          # Business logic
+│       ├── domain/           # Entities, repository interfaces
+│       ├── infrastructure/   # JPA implementations
+│       └── config/           # Security, JWT
+├── frontend/
+│   └── src/
+│       ├── pages/            # Route components
+│       ├── components/       # Reusable UI
+│       └── api/              # API client
+├── docker-compose.yml
+└── .env.example
+```
 
-
+---
 
 ## Architecture
 
@@ -162,6 +202,9 @@ Controller → Service → Domain
                Infrastructure (JPA)
 ```
 
-This keeps the core business logic independent of frameworks, making it straightforward to test and maintain.
+This keeps business logic independent of frameworks, making it straightforward to test and extend.
+
+
+
 
 
