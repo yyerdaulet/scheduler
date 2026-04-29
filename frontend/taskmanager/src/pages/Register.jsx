@@ -324,9 +324,7 @@ export default function Register() {
 
         {/* Brand */}
         <div className="reg-brand">
-          <div className="reg-brand-icon">🎓</div>
-          <div className="reg-brand-name">ResearchHub</div>
-          <div className="reg-brand-sub">Academic Profile Platform</div>
+          <div className="reg-brand-name">Scheduler</div>
         </div>
 
         <div className="reg-card">
@@ -343,7 +341,6 @@ export default function Register() {
           ) : (
             <>
               <div className="reg-card-title">Create an account</div>
-              <div className="reg-card-sub">Join the academic research community</div>
 
               {error && (
                 <div className="reg-error">⚠️ {error}</div>

@@ -147,9 +147,12 @@ public class CreateLessons {
     }
 
     private Long resolveHours(Long hours){
-        if(hours == 45){
+
+        if(hours.equals(45L)){
             return 30L;
         }
+
+
         return 15L;
     }
 

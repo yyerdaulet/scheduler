@@ -1,13 +1,10 @@
 import { Routes, Route, Link, useLocation } from "react-router-dom";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
-import Profile from "./pages/Profile";
 import CreateProfile from "./pages/CreateProfile";
 import { useState, useEffect, useRef } from "react";
 import AdminPanel from "./pages/Admin";
 import VerifyEmail from "./pages/VerifyEmail";
-import CreateGroup from "./pages/Groups";
-import CreateSubject from "./pages/Subjects";
 import api from "./api";
 
 /* ─── Font + styles ──────────────────────────────────────────────────────── */
@@ -280,105 +277,7 @@ if (!document.head.querySelector("style[data-app]")) {
   document.head.appendChild(styleTag);
 }
 
-/* ─── AI Chat Panel ──────────────────────────────────────────────────────── */
-function AiChatPanel({ open, onClose }) {
-  const [messages, setMessages] = useState([]);
-  const [input,    setInput]    = useState("");
-  const [loading,  setLoading]  = useState(false);
-  const bottomRef = useRef(null);
 
-  useEffect(() => {
-    if (bottomRef.current) bottomRef.current.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
-
-  const sendMessage = async () => {
-    const text = input.trim();
-    if (!text || loading) return;
-
-    setMessages((prev) => [...prev, { role: "user", text }]);
-    setInput("");
-    setLoading(true);
-
-    try {
-      const r = await api.post("/ai/chat", { message: text });
-      setMessages((prev) => [...prev, { role: "ai", text: r.data.reply }]);
-    } catch {
-      setMessages((prev) => [...prev, { role: "ai", text: "Something went wrong. Please try again.", error: true }]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleKey = (e) => {
-    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
-  };
-
-  if (!open) return null;
-
-  return (
-    <div className="ai-panel">
-      {/* Header */}
-      <div className="ai-panel-header">
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <div className="ai-panel-icon">✦</div>
-          <div>
-            <div className="ai-panel-title">AI Assistant</div>
-            <div className="ai-panel-subtitle">Ask me anything</div>
-          </div>
-        </div>
-        <button className="ai-panel-close" onClick={onClose}>✕</button>
-      </div>
-
-      {/* Messages */}
-      <div className="ai-panel-messages">
-        {messages.length === 0 && (
-          <div className="ai-panel-empty">
-            <div style={{ fontSize: "2rem", marginBottom: 8 }}>✦</div>
-            <div style={{ fontWeight: 600, marginBottom: 4, color: "#0f1923" }}>How can I help?</div>
-            <div style={{ fontSize: "0.78rem", color: "#7a8898" }}>
-              Ask me about research, projects, articles, or anything else.
-            </div>
-          </div>
-        )}
-        {messages.map((msg, i) => (
-          <div key={i} className={`ai-msg ai-msg-${msg.role} ${msg.error ? "ai-msg-error" : ""}`}>
-            {msg.role === "ai" && <div className="ai-msg-avatar">✦</div>}
-            <div className="ai-msg-bubble">{msg.text}</div>
-          </div>
-        ))}
-        {loading && (
-          <div className="ai-msg ai-msg-ai">
-            <div className="ai-msg-avatar">✦</div>
-            <div className="ai-msg-bubble ai-typing">
-              <span /><span /><span />
-            </div>
-          </div>
-        )}
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Input */}
-      <div className="ai-panel-input-wrap">
-        <textarea
-          className="ai-panel-input"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKey}
-          placeholder="Type a message… (Enter to send)"
-          rows={2}
-          disabled={loading}
-        />
-        <button
-          className="ai-panel-send"
-          onClick={sendMessage}
-          disabled={loading || !input.trim()}
-        >
-          ↑
-        </button>
-      </div>
-    </div>
-  );
-}
 
 /* ─── Navbar component ───────────────────────────────────────────────────── */
 function Navbar({ isAuth, onLogout }) {
@@ -392,8 +291,7 @@ function Navbar({ isAuth, onLogout }) {
   return (
     <nav className="app-nav">
       <Link to="/" className="app-nav-brand">
-        <div className="app-nav-brand-icon">🎓</div>
-        <span className="app-nav-brand-name">ResearchHub</span>
+        <span className="app-nav-brand-name">Scheduler</span>
       </Link>
 
       <div className="app-nav-links">
@@ -408,9 +306,6 @@ function Navbar({ isAuth, onLogout }) {
           </>
         ) : (
           <>
-            <Link to={`/profiles/${id}`} className={navClass(`/profiles/${id}`)}>
-              👤 My Profile
-            </Link>
             <div className="app-nav-sep" />
             <div className="app-nav-avatar">
               {email[0].toUpperCase()}
@@ -442,20 +337,13 @@ function App() {
         <Routes>
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login setIsAuth={setIsAuth} />} />
-          <Route path="/profiles/:profile_id" element={<Profile />} />
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/profiles" element={<CreateProfile />} />
           <Route path="/register/verify" element={<VerifyEmail />} />
-          <Route path="/createGroup" element={<CreateGroup />} />
-          <Route path="/createSubject" element={<CreateSubject />} />
         </Routes>
       </div>
 
-      {/* ── Global AI Chat ── */}
-      <AiChatPanel open={aiOpen} onClose={() => setAiOpen(false)} />
-      <button className="ai-fab" onClick={() => setAiOpen((v) => !v)} title="AI Assistant">
-        {aiOpen ? "✕" : "✦"}
-      </button>
+
     </div>
   );
 }

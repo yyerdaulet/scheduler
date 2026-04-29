@@ -6,7 +6,8 @@ import java.util.List;
 
 public record LessonResponse(
         Long id,
-        String subjectName, Long hours,
+        String subjectName,
+        Long hours,
         ActivityType type,
         List<Long> groupsId,
         Long groupId,

@@ -12,7 +12,7 @@ const NAV_META   = {
   enrollments: { label: "Enrollments", color: "#D85A30" },
   lessons: { label: "Lessons", color: "#C2410C" },
   assignments: { label: "Assignments", color: "#B45309" },
-  classrooms: { label: "Classrooms", color: "#0369A1" }
+  classrooms: { label: "Schedule", color: "#0369A1" }
 };
 
 const DIR_STYLE = {
@@ -857,11 +857,11 @@ function AssignmentsSection() {
   const [lessons,     setLessons]     = useState([]);
   const [profiles,    setProfiles]    = useState([]);
   const [assignments, setAssignments] = useState([]);
-  const [selected,    setSelected]    = useState(null); // выбранный lesson
+  const [selected,    setSelected]    = useState(null);
   const [teacherId,   setTeacherId]   = useState("");
   const [status,      setStatus]      = useState("");
   const [loading,     setLoading]     = useState(false);
-  const [groups, setGroups] = useState([]);
+  const [groups,      setGroups]      = useState([]);
 
   const load = useCallback(async () => {
     try {
@@ -871,12 +871,11 @@ function AssignmentsSection() {
         api.get("/profiles"),
         api.get("/groups"),
       ]);
+      console.log(ar.data)
       setGroups(gr.data);
       setAssignments(ar.data);
       setLessons(lr.data);
       setProfiles(pr.data.filter(p => p.lectureship === true));
-
-      // ✅ обновляем selected из свежих данных
       setSelected(prev => prev
         ? lr.data.find(l => String(l.id) === String(prev.id)) ?? prev
         : null
@@ -885,43 +884,30 @@ function AssignmentsSection() {
   }, []);
   useEffect(() => { load(); }, [load]);
 
-  const teacherName  = id => {
+  const teacherName = id => {
     const t = profiles.find(p => String(p.id) === String(id));
     return t ? `${t.name} ${t.lastName}` : `Teacher #${id}`;
   };
 
-  // assignments для выбранного lesson
   const lessonAssignments = selected
     ? assignments.filter(a => String(a.lessonId) === String(selected.id))
     : [];
 
-  // teachers ещё не назначенные на этот lesson
   const availableTeachers = profiles.filter(p =>
     !lessonAssignments.some(a => String(a.profileId) === String(p.id))
   );
 
   const handleAssign = async () => {
     if (!teacherId || !selected) return;
-
-    const payload = {
-      profileId: Number(teacherId),
-      lessonId: Number(selected.id)
-    };
-
-    console.log("Sending payload:", payload);
-
     setLoading(true);
-
     try {
-      await api.post("/assignments", payload);
+      await api.post("/assignments", { profileId: Number(teacherId), lessonId: Number(selected.id) });
       setTeacherId("");
       await load();
-    } catch {
-      setStatus("Error assigning teacher");
-    }
-
+    } catch { setStatus("Error assigning teacher"); }
     setLoading(false);
   };
+
   const handleRemove = async (assignmentId) => {
     if (!window.confirm("Remove this assignment?")) return;
     try {
@@ -930,27 +916,19 @@ function AssignmentsSection() {
     } catch { setStatus("Error removing assignment"); }
   };
 
-    // добавь хелпер
-    const groupName = id => groups.find(g => String(g.id) === String(id))?.name ?? `Group #${id}`;
+  const groupName  = id  => groups.find(g => String(g.id) === String(id))?.name ?? `Group #${id}`;
+  const groupNames = ids => Array.isArray(ids) && ids.length ? ids.map(id => groupName(id)).join(", ") : "—";
 
-    const groupNames = ids => Array.isArray(ids) && ids.length
-      ? ids.map(id => groupName(id)).join(", ")
-      : "—";
-
-      const lessonGroups = (lesson) => {
-        switch (lesson.type) {
-          case "LECTURE":
-            return groupNames(lesson.groupsId);
-          case "SEMINAR":
-            return lesson.groupId ? groupName(lesson.groupId) : "—";
-          case "LABORATORY":
-            return lesson.groupId && lesson.subgroupId
-              ? `${groupName(lesson.groupId)} / Sub #${lesson.subgroupId}`
-              : lesson.groupId ? groupName(lesson.groupId) : "—";
-          default:
-            return "—";
-        }
-      };
+  const lessonGroups = (lesson) => {
+    switch (lesson.type) {
+      case "LECTURE":    return groupNames(lesson.groupsId);
+      case "SEMINAR":    return lesson.groupId ? groupName(lesson.groupId) : "—";
+      case "LABORATORY": return lesson.groupId && lesson.subgroupId
+        ? `${groupName(lesson.groupId)} / Sub #${lesson.subgroupId}`
+        : lesson.groupId ? groupName(lesson.groupId) : "—";
+      default: return "—";
+    }
+  };
 
   return (
     <div>
@@ -989,7 +967,6 @@ function AssignmentsSection() {
                     <span style={{ fontSize: 11, color: "#888" }}>{count} teacher{count !== 1 ? "s" : ""}</span>
                   </div>
                 </div>
-                {/* ✅ сюда — под строкой с названием и badge */}
                 <div style={{ fontSize: 11, color: "#888", marginTop: 4 }}>
                   {lessonGroups(l)}
                 </div>
@@ -1009,17 +986,18 @@ function AssignmentsSection() {
           ) : (
             <div style={{ padding: 16 }}>
 
-              {/* assigned teachers */}
               {lessonAssignments.length === 0 ? (
                 <p style={{ color: "#ccc", fontSize: 13, marginBottom: 16 }}>No teachers assigned</p>
               ) : lessonAssignments.map(a => (
                 <div key={a.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0", borderBottom: "0.5px solid #f4f4f4" }}>
-                  <span style={{ fontSize: 13 }}>{teacherName(a.profileId)}</span>
+                  <div>
+                    <span style={{ fontSize: 13 }}>{teacherName(a.profileId)}</span>
+                    <span style={{ fontSize: 11, color: "#aaa", marginLeft: 8 }}>{a.duration} hour</span>
+                  </div>
                   <button style={btnDanger} onClick={() => handleRemove(a.id)}>Remove</button>
                 </div>
               ))}
 
-              {/* assign new teacher */}
               {availableTeachers.length > 0 && (
                 <div style={{ display: "flex", gap: 8, marginTop: 16 }}>
                   <select style={{ ...inp, flex: 1 }} value={teacherId} onChange={e => setTeacherId(e.target.value)}>
@@ -1065,25 +1043,42 @@ function ClassRoomForm({ form, setForm, status }) {
 const blankClassRoom = () => ({ number: "", size: "" });
 
 function ClassRoomsSection() {
-  const [items,    setItems]    = useState([]);
-  const [modal,    setModal]    = useState(null);
-  const [selected, setSelected] = useState(null);
-  const [loading,  setLoading]  = useState(false);
-  const [status,   setStatus]   = useState("");
-  const [form,     setForm]     = useState(blankClassRoom);
+  const [items,       setItems]       = useState([]);
+  const [assignments, setAssignments] = useState([]);
+  const [lessons,     setLessons]     = useState([]);
+  const [groups,      setGroups]      = useState([]);
+  const [modal,       setModal]       = useState(null);
+  const [selected,    setSelected]    = useState(null);
+  const [loading,     setLoading]     = useState(false);
+  const [status,      setStatus]      = useState("");
+  const [form,        setForm]        = useState(blankClassRoom);
+  const [nonActive,   setNonActive]   = useState([]);
+
+  const [bookingSlot,  setBookingSlot]  = useState(null);
+  const [assignmentId, setAssignmentId] = useState("");
+
+  const nonActiveAssignments = assignments.filter(a => !a.isActive);
 
   const load = useCallback(async () => {
-    try { const r = await api.get("/classrooms"); setItems(r.data); }
-    catch { setStatus("Error loading classrooms"); }
+    try {
+      const [cr, ar, lr, gr,nar] = await Promise.all([
+        api.get("/classrooms"),
+        api.get("/assignments"),
+        api.get("/lessons"),
+        api.get("/groups"),
+        api.get("/assignments/nonactive")
+      ]);
+      setItems(cr.data);
+      setAssignments(ar.data);
+      setLessons(lr.data);
+      setGroups(gr.data);
+      setNonActive(nar.data);
+    } catch { setStatus("Error loading classrooms"); }
   }, []);
   useEffect(() => { load(); }, [load]);
 
-  const openCreate = ()    => { setForm(blankClassRoom()); setStatus(""); setModal("create"); };
+  const openCreate = () => { setForm(blankClassRoom()); setStatus(""); setModal("create"); };
   const openEdit   = (row) => { setSelected(row); setForm({ number: row.number, size: row.size }); setStatus(""); setModal("edit"); };
-  const openView   = async (row) => {
-    try { const r = await api.get(`/classrooms/${row.id}`); setSelected(r.data); setModal("view"); }
-    catch { setStatus("Error fetching classroom"); }
-  };
 
   const handleCreate = async () => {
     setLoading(true); setStatus("");
@@ -1109,17 +1104,210 @@ function ClassRoomsSection() {
     catch { setStatus("Error deleting classroom"); }
   };
 
-  const cols = [
-    { key: "id",     label: "ID",       w: 60 },
-    { key: "number", label: "Room №",   w: 120, render: v => <Badge color="#185FA5" bg="#E6F1FB">#{v}</Badge> },
-    { key: "size",   label: "Capacity", w: 120, render: v => <Badge color="#1D9E75" bg="#E1F5EE">{v} seats</Badge> },
-  ];
+  const handleBook = async () => {
+    if (!assignmentId || !bookingSlot) return;
+    setLoading(true);
+    try {
+      await api.post("/classrooms/book", {
+        classRoomId:     bookingSlot.classRoomId,
+        assignmentId:    Number(assignmentId),
+        day:             bookingSlot.weekday,
+        lessonStartTime: bookingSlot.start,
+      });
+      setBookingSlot(null);
+      setAssignmentId("");
+      load();
+    } catch { setStatus("Error booking classroom"); }
+    setLoading(false);
+  };
+
+  const groupName = id => groups.find(g => String(g.id) === String(id))?.name ?? `Group #${id}`;
+
+  const getBookingLabel = (bookedByAssignmentId) => {
+    const assignment = assignments.find(a => String(a.id) === String(bookedByAssignmentId));
+    if (!assignment) return "Booked";
+    const lesson = lessons.find(l => String(l.id) === String(assignment.lessonId));
+    if (!lesson) return "Booked";
+
+    let groupLabel = "";
+    switch (lesson.type) {
+      case "LECTURE":
+        groupLabel = (lesson.groupsId || []).map(id => groupName(id)).join(", ");
+        break;
+      case "SEMINAR":
+        groupLabel = lesson.groupId ? groupName(lesson.groupId) : "";
+        break;
+      case "LABORATORY":
+        groupLabel = lesson.groupId
+          ? lesson.subgroupId
+            ? `${groupName(lesson.groupId)} / Sub #${lesson.subgroupId}`
+            : groupName(lesson.groupId)
+          : "";
+        break;
+      default:
+        groupLabel = "";
+    }
+
+    return  `${lesson.subjectName} · ${lesson.type}${groupLabel ? ` · ${groupLabel}` : ""}`;
+  };
+
+  const allSlots = [];
+  const slotSet  = new Set();
+  items.forEach(room => {
+    (room.timeslots || []).forEach(t => {
+      const key = `${t.weekday}__${t.start}`;
+      if (!slotSet.has(key)) {
+        slotSet.add(key);
+        allSlots.push({ weekday: t.weekday, start: t.start, finish: t.finish, key });
+      }
+    });
+  });
+
+  const WEEKDAY_ORDER = ["MONDAY","TUESDAY","WEDNESDAY","THURSDAY","FRIDAY","SATURDAY"];
+  allSlots.sort((a, b) => {
+    const di = WEEKDAY_ORDER.indexOf(a.weekday) - WEEKDAY_ORDER.indexOf(b.weekday);
+    return di !== 0 ? di : a.start.localeCompare(b.start);
+  });
+
+  const getSlot = (room, weekday, start) =>
+    (room.timeslots || []).find(t => t.weekday === weekday && t.start === start);
+
+  const STATE_STYLE = {
+    AVAILABLE:     { color: "#065f46", bg: "#d1fae5", label: "Free" },
+    BOOKED:        { color: "#b91c1c", bg: "#fee2e2" },
+    NOT_AVAILABLE: { color: "#6b7280", bg: "#f3f4f6", label: "N/A" },
+  };
+
+  const headerCell = {
+    padding: "10px 14px", fontSize: 11, fontWeight: 700, color: "#fff",
+    background: "#1F3864", textAlign: "center", whiteSpace: "nowrap",
+    border: "0.5px solid #2E4B7A", letterSpacing: "0.05em",
+  };
+
+  const rowLabelCell = {
+    padding: "8px 12px", fontSize: 11, fontWeight: 600, color: "#555",
+    background: "#f8f8f8", whiteSpace: "nowrap", border: "0.5px solid #e8e8e8",
+    textAlign: "right", minWidth: 160,
+  };
 
   return (
     <div>
       <SectionHeader title="Classrooms" singular="Classroom" onAdd={openCreate} />
-      <StatusBar msg={!modal ? status : ""} />
-      <DataTable cols={cols} rows={items} onEdit={openEdit} onDelete={handleDelete} onView={openView} />
+      <StatusBar msg={status} />
+
+      <div style={{ overflowX: "auto", borderRadius: 12, border: "0.5px solid #e8e8e8", background: "#fff" }}>
+        <table style={{ borderCollapse: "collapse", width: "100%" }}>
+          <thead>
+            <tr>
+              <th style={{ ...headerCell, background: "#111", minWidth: 160 }}>Timeslot / Room</th>
+              {items.map(room => (
+                <th key={room.id} style={{ ...headerCell, minWidth: 130 }}>
+                  <div>Room #{room.number}</div>
+                  <div style={{ fontSize: 10, fontWeight: 400, opacity: 0.8 }}>{room.size} seats</div>
+                  <div style={{ display: "flex", gap: 4, justifyContent: "center", marginTop: 4 }}>
+                    <button onClick={() => openEdit(room)}
+                      style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, border: "none", background: "#fff3", color: "#fff", cursor: "pointer" }}>
+                      Edit
+                    </button>
+                    <button onClick={() => handleDelete(room.id)}
+                      style={{ fontSize: 10, padding: "2px 6px", borderRadius: 4, border: "none", background: "#ff4444", color: "#fff", cursor: "pointer" }}>
+                      Del
+                    </button>
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {allSlots.map((slot, i) => {
+              const isNewDay = i === 0 || allSlots[i - 1].weekday !== slot.weekday;
+              return (
+                <>
+                  {isNewDay && (
+                    <tr key={`day-${slot.weekday}`}>
+                      <td colSpan={items.length + 1} style={{
+                        padding: "6px 14px", fontSize: 11, fontWeight: 700, color: "#fff",
+                        background: "#2E75B6", letterSpacing: "0.08em", textTransform: "uppercase",
+                      }}>
+                        {slot.weekday}
+                      </td>
+                    </tr>
+                  )}
+                  <tr key={slot.key} style={{ background: i % 2 === 0 ? "#fff" : "#fafafa" }}>
+                    <td style={rowLabelCell}>
+                      {slot.start?.slice(0, 5)} – {slot.finish?.slice(0, 5)}
+                    </td>
+                    {items.map(room => {
+                      const t         = getSlot(room, slot.weekday, slot.start);
+                      const st        = t ? (STATE_STYLE[t.roomState] || STATE_STYLE.NOT_AVAILABLE) : null;
+                      const isAvailable = t?.roomState === "AVAILABLE";
+                      const isBooked    = t?.roomState === "BOOKED";
+
+                      return (
+                        <td key={room.id} style={{ border: "0.5px solid #f0f0f0", textAlign: "center", padding: 6 }}>
+                          {t ? (
+                            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                              <span style={{
+                                display: "inline-block", padding: "3px 10px", borderRadius: 99,
+                                fontSize: 11, fontWeight: 600, color: st.color, background: st.bg,
+                                maxWidth: 160, textAlign: "center", whiteSpace: "normal", lineHeight: 1.4,
+                              }}>
+                                {isBooked
+                                  ? getBookingLabel(t.bookedByAssignmentId)
+                                  : st.label
+                                }
+                              </span>
+                              {isAvailable && (
+                                <button
+                                  onClick={() => { setBookingSlot({ classRoomId: room.id, weekday: slot.weekday, start: slot.start }); setAssignmentId(""); setModal("book"); }}
+                                  style={{ fontSize: 10, padding: "2px 8px", borderRadius: 4, border: "0.5px solid #2E75B6", background: "#E6F1FB", color: "#185FA5", cursor: "pointer" }}
+                                >
+                                  Book
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            <span style={{ color: "#ddd", fontSize: 11 }}>—</span>
+                          )}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                </>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+
+      {items.length === 0 && (
+        <p style={{ textAlign: "center", color: "#ccc", fontSize: 13, marginTop: 32 }}>No classrooms yet</p>
+      )}
+
+      {modal === "book" && bookingSlot && (
+        <Modal
+          title={`Book slot — ${bookingSlot.weekday} ${bookingSlot.start?.slice(0, 5)}`}
+          onClose={() => { setModal(null); setBookingSlot(null); }}
+          onSubmit={handleBook}
+          submitLabel="Book"
+          loading={loading}
+        >
+          <StatusBar msg={status} />
+          <Field label="Assignment">
+            <select style={inp} value={assignmentId} onChange={e => setAssignmentId(e.target.value)}>
+              <option value="">Select an assignment…</option>
+              {nonActive.map(a => {
+                const lesson = lessons.find(l => String(l.id) === String(a.lessonId));
+                return (
+                  <option key={a.id} value={a.id}>
+                    {lesson ? `${lesson.subjectName} — ${lesson.type}` : `Lesson #${a.lessonId}`} / Assignment #{a.id}
+                  </option>
+                );
+              })}
+            </select>
+          </Field>
+        </Modal>
+      )}
 
       {modal === "create" && (
         <Modal title="Create classroom" onClose={() => setModal(null)} onSubmit={handleCreate} submitLabel="Create" loading={loading}>
@@ -1129,13 +1317,6 @@ function ClassRoomsSection() {
       {modal === "edit" && (
         <Modal title="Edit classroom" onClose={() => setModal(null)} onSubmit={handleUpdate} submitLabel="Update" loading={loading}>
           <ClassRoomForm form={form} setForm={setForm} status={status} />
-        </Modal>
-      )}
-      {modal === "view" && selected && (
-        <Modal title="Classroom details" onClose={() => setModal(null)}>
-          <DetailRow label="ID"       value={selected.id} />
-          <DetailRow label="Room №"   value={selected.number} />
-          <DetailRow label="Capacity" value={selected.size} />
         </Modal>
       )}
     </div>

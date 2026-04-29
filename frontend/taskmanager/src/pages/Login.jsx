@@ -241,7 +241,7 @@ function Login({ setIsAuth }) {
       setIsAuth(true);
 
       if (hasProfile.data) {
-        navigate(`/profiles/main`);
+        navigate(`/admin`);
       } else {
         navigate(`/profiles`);
       }
@@ -262,14 +262,12 @@ function Login({ setIsAuth }) {
 
         {/* Brand */}
         <div className="ln-brand">
-          <div className="ln-brand-icon">🎓</div>
-          <div className="ln-brand-name">ResearchHub</div>
-          <div className="ln-brand-sub">Academic Profile Platform</div>
+          <div className="ln-brand-name">Scheduler</div>
         </div>
 
         <div className="ln-card">
           <div className="ln-card-title">Welcome back</div>
-          <div className="ln-card-sub">Sign in to access your research profile</div>
+          <div className="ln-card-sub">Sign in to access your  profile</div>
 
           {error && (
             <div className="ln-error">⚠️ {error}</div>

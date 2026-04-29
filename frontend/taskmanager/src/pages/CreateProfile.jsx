@@ -59,7 +59,7 @@ export default function ProfileForm() {
         userId: Number(userId),
         hours:  Number(formData.hours),
       });
-      navigate(`/profiles/${userId}`);
+      navigate(`/admin`);
     } catch {
       setError("Failed to save profile. Please check your details and try again.");
       setLoading(false);
