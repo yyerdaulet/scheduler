@@ -73,20 +73,12 @@ The backend is written in Java with Spring Boot and follows Clean Architecture p
 **Requirements:** Docker and Docker Compose
 
 ```bash
-git clone https://github.com/your-username/simple-scheduler.git
+git clone https://github.com/yyerdaulet/simple-scheduler.git
 cd simple-scheduler
 cp .env.example .env
 ```
 
 Edit `.env`:
-
-```env
-DB_NAME=simple_scheduler
-DB_USER=postgres
-DB_PASSWORD=secret
-JWT_SECRET=your_secret_key
-REACT_APP_API_URL=http://localhost:8080
-```
 
 ```bash
 docker-compose up --build
